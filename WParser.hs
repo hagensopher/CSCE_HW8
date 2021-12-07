@@ -24,12 +24,24 @@ module WParser ( parse,
       return Empty
   
     printStmt = 
-      keyword "print" >>
-      expr >>= \e ->
-      symbol ";" >>
-      return (Print e)
+      keyword "print" >> --looks for the keyword "print"
+      expr >>= \e -> --makes an expression and result into e then
+      symbol ";" >> -- find the symbol ";"
+      return (Print e) --print it
 
-    varDeclStmt = failure
+    varDeclStmt = 
+      keyword "var" >> 
+      letter >>= \f -> --what i think: this checks if the next after var is a letter
+      symbol "=" >> -- checks if the value after the letter is an equals sign
+      expr >>= \e -> --makes an expression (right now we only have string literals, need other forms of expresisons from Wlang (WExp?))
+      symbol ";" >> -- find the symbol ";"
+      return (VarDecl [f] e ) --print it
+      
+      
+      
+      
+
+
     assignStmt = failure
     ifStmt = failure
     whileStmt = failure
@@ -37,7 +49,7 @@ module WParser ( parse,
 
     -- the only kind of expression supported for now is stringLiterals
     -- implement the full expression language of W
-    expr = stringLiteral 
+    expr = stringLiteral -- i think we need the +++ with more expresions of W
 
     -- stringLiterals can contain \n characters
     stringLiteral = char ('"') >>
