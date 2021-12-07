@@ -30,11 +30,13 @@ module WParser ( parse,
       return (Print e) --print it
 
     varDeclStmt = 
-      keyword "var" >> 
-      letter >>= \f -> --what i think: this checks if the next after var is a letter
+      keyword "var" >>
+      whitespace >> 
+       many letter >>= \f -> --what i think: this checks if the next after var is a letter
+      whitespace >>
       symbol "=" >> -- checks if the value after the letter is an equals sign
-      expr >>= \e -> --makes an expression (right now we only have string literals, need other forms of expresisons from Wlang (WExp?))
-      symbol ";" >> -- find the symbol ";"
+      expr >>= \e ->
+      symbol ";" >>
       return (VarDecl [f] e ) --print it
       
       
@@ -49,8 +51,8 @@ module WParser ( parse,
 
     -- the only kind of expression supported for now is stringLiterals
     -- implement the full expression language of W
-    expr = stringLiteral -- i think we need the +++ with more expresions of W
-
+    expr = stringLiteral +++ term >>= termSeq -- i think we need the +++ with more expresions of W
+    --expr = term >>= termSeq
     -- stringLiterals can contain \n characters
     stringLiteral = char ('"') >>
                     many stringChar >>= \s ->
@@ -61,11 +63,33 @@ module WParser ( parse,
     stringChar = (char '\\' >> char 'n' >> return '\n') 
                  +++ sat (/= '"')
 
+  
+--these are where the grammers start shown in lecture 
+    termSeq left = ( (symbol "+" +++ symbol "-") >>= \s ->
+                 term >>= \right ->
+                 termSeq ((toOp s) left right)
+               ) +++ return left
+
+    term = factor >>= factorSeq 
+
+    factorSeq left = ( (symbol "*" +++ symbol "/") >>= \s ->
+                      factor >>= \right ->
+                      factorSeq ((toOp s) left right)
+                    ) +++ return left
+
+    factor = ( nat >>= \i ->
+              return (Val (VInt i))
+            ) +++ parens expr
+
+    toOp "+" = Plus
+    toOp "-" = Minus
+    toOp "*" = Multiplies
+    toOp "/" = Divides
     ----------------------
     -- Parser utilities --
     ----------------------
 
-    keywords = words "var if else while"
+    keywords = words "var if else while print"
     isKeyword s = s `elem` keywords
 
     keyword s = 
