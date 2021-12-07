@@ -61,7 +61,7 @@ module WParser ( parse,
       symbol "}\n">>
       keyword "else">>
       symbol "{\n">>
-      stmt >>= \f -> 
+      stmt >>= \f -> -- same error for \t
       symbol "}">>
       return (If e t f)
 
@@ -76,8 +76,10 @@ module WParser ( parse,
     --   return (While e t)
 
 
-
-    blockStmt = failure      
+  --maybe we define the { } for both whilte and for loops for hte blbock and not in them
+    blockStmt = 
+      many1 stmt >>= \e ->
+      return (Block e)      
 
     -- the only kind of expression supported for now is stringLiterals
     -- implement the full expression language of W
