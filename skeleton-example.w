@@ -1,5 +1,10 @@
 // The skeleton parser accepts only print and empty statements
 ;;;;;
-//print "Testing...\n";
-varx = 5;
+if 5>3 {
+    var x = 2;
+    print "Goodbye";
+}
+else{
+   print "Goodbye"; 
+}
 ;;;;;

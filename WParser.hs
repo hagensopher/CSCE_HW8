@@ -32,21 +32,51 @@ module WParser ( parse,
     varDeclStmt = 
       keyword "var" >>
       whitespace >> 
-       many letter >>= \f -> --what i think: this checks if the next after var is a letter
+       many alphanum >>= \f -> --what i think: this checks if the next after var is a letter
       whitespace >>
       symbol "=" >> -- checks if the value after the letter is an equals sign
       expr >>= \e ->
       symbol ";" >>
-      return (VarDecl [f] e ) --print it
+      return (if not (isKeyword f) then (VarDecl f e) else undefined ) --print it
       
-      
-      
-      
+    assignStmt = 
+      identifier >>= \f ->
+      whitespace >>
+      symbol "=">>
+      expr >>= \e ->
+      symbol ";" >>
+      return (Assign f e)
+-- a very strict defenition of if
+  -- problems 
+  --1. no partheneis 
+  --2. cant handle multiple stmt in the if (i think need to use block?) 
+  --3. very specific syntax needed to match
+    ifStmt = 
+      keyword "if" >>
+      whitespace >>
+      expr >>= \e ->
+      whitespace >>
+      symbol "{\n" >>
+      stmt >>= \t -> --cant just use many1 to get all of them because If in W.hs needs a single Wstmt not a list 
+      symbol "}\n">>
+      keyword "else">>
+      symbol "{\n">>
+      stmt >>= \f -> 
+      symbol "}">>
+      return (If e t f)
+
+    whileStmt = failure 
+    --   keyword "while" >>
+    --   whitespace >>
+    --   expr >>= \e ->
+    --   whitespace >>
+    --   symbol "{\n" >>
+    --   many stmt >>= \t ->
+    --   symbol "}" >>
+    --   return (While e t)
 
 
-    assignStmt = failure
-    ifStmt = failure
-    whileStmt = failure
+
     blockStmt = failure      
 
     -- the only kind of expression supported for now is stringLiterals
@@ -65,7 +95,10 @@ module WParser ( parse,
 
   
 --these are where the grammers start shown in lecture 
-    termSeq left = ( (symbol "+" +++ symbol "-") >>= \s ->
+    termSeq left = ( (symbol "+" +++ symbol "-"+++ 
+                    symbol ">="+++ symbol "<="+++ 
+                    symbol "<" +++ symbol ">" +++ 
+                    symbol "==" +++ symbol "=" +++ symbol "!=") >>= \s ->
                  term >>= \right ->
                  termSeq ((toOp s) left right)
                ) +++ return left
@@ -85,6 +118,12 @@ module WParser ( parse,
     toOp "-" = Minus
     toOp "*" = Multiplies
     toOp "/" = Divides
+    toOp "<" = Less
+    toOp ">" = Greater
+    toOp "<=" = LessOrEqual
+    toOp ">=" = GreaterOrEqual
+    toOp "==" = Equals
+    toOp "!=" = NotEqual
     ----------------------
     -- Parser utilities --
     ----------------------
