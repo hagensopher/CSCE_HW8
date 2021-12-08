@@ -85,7 +85,7 @@ module WParser ( parse,
 
     -- the only kind of expression supported for now is stringLiterals
     -- implement the full expression language of W
-    expr = stringLiteral +++ term >>= termSeq -- i think we need the +++ with more expresions of W
+    expr = (term >>= termSeq) +++ stringLiteral  -- i think we need the +++ with more expresions of W
     --expr = term >>= termSeq
     -- stringLiterals can contain \n characters
     stringLiteral = (
