@@ -4,5 +4,6 @@ var x = 0;
 while x<5 {
     print "Oh no\n";
     x = x + 1;
+    print x;
 }
 ;;;;;

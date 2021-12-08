@@ -88,11 +88,15 @@ module WParser ( parse,
     expr = stringLiteral +++ term >>= termSeq -- i think we need the +++ with more expresions of W
     --expr = term >>= termSeq
     -- stringLiterals can contain \n characters
-    stringLiteral = char ('"') >>
+    stringLiteral = (
+                     char ('"') >>
                     many stringChar >>= \s ->
                     char ('"') >>
                     whitespace >>
                     return (Val (VString s))
+                    ) +++
+                    ( identifier >>= \i ->
+                      return (Var i)) 
 
     stringChar = (char '\\' >> char 'n' >> return '\n') 
                  +++ sat (/= '"')
