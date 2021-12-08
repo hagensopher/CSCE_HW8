@@ -13,10 +13,9 @@ closeBr = char ']'
 openPn = char '('
 closePn = char ')'
 star = char '*'
-myParser2 :: Parser [Char]
-myParser2 = (many1 star >>= \vs -> myParser >>= \x -> return (x + (length vs))) +++
-  (openBr >> myParser >>= \c -> closeBr >>
-    myParser >>= \d -> return (c + d)) +++
-  (openPn >> myParser >>= \c -> closePn >>
-    myParser >>= \d -> return (c + d)) +++
-  (return 0)
+
+myParser2 :: Parser Int
+myParser2 = (many1 star >>= \vs -> myParser >>= \x -> return (x + (length vs))) +++ 
+            (openBr >> myParser >>= \c -> closeBr >> myParser >>= \d -> return (c + d)) +++
+            (openPn >> myParser >>= \c -> closePn >> myParser >>= \d -> return (c + d)) +++
+            (return 0)

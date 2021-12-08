@@ -1,10 +1,8 @@
 // The skeleton parser accepts only print and empty statements
 ;;;;;
-if 5>3 {
-    var x = 2;
-    print "Goodbye";
-}
-else{
-   print "Goodbye"; 
+var x = 0;
+while x<5 {
+    print "Oh no\n";
+    x = x + 1;
 }
 ;;;;;

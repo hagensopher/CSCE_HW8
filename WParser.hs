@@ -56,29 +56,31 @@ module WParser ( parse,
       whitespace >>
       expr >>= \e ->
       whitespace >>
-      symbol "{\n" >>
-      stmt >>= \t -> --cant just use many1 to get all of them because If in W.hs needs a single Wstmt not a list 
-      symbol "}\n">>
+
+      blockStmt >>= \t -> --cant just use many1 to get all of them because If in W.hs needs a single Wstmt not a list 
+
       keyword "else">>
-      symbol "{\n">>
-      stmt >>= \f -> -- same error for \t
-      symbol "}">>
+
+      blockStmt >>= \f -> -- same error for \t
+
       return (If e t f)
 
-    whileStmt = failure 
-    --   keyword "while" >>
-    --   whitespace >>
-    --   expr >>= \e ->
-    --   whitespace >>
-    --   symbol "{\n" >>
-    --   many stmt >>= \t ->
-    --   symbol "}" >>
-    --   return (While e t)
+    whileStmt =  
+      keyword "while" >>
+      whitespace >>
+      expr >>= \e ->
+      whitespace >>
+
+      blockStmt >>= \t ->
+
+      return (While e t)
 
 
   --maybe we define the { } for both whilte and for loops for hte blbock and not in them
     blockStmt = 
+      symbol "{" +++ symbol "{\n" >>
       many1 stmt >>= \e ->
+      symbol "}" >>
       return (Block e)      
 
     -- the only kind of expression supported for now is stringLiterals
@@ -112,9 +114,12 @@ module WParser ( parse,
                       factorSeq ((toOp s) left right)
                     ) +++ return left
 
-    factor = ( nat >>= \i ->
+    factor = ( nat >>= \i -> --either get many digits 
               return (Val (VInt i))
-            ) +++ parens expr
+            ) +++ 
+            ( identifier >>= \i -> --get a variable name
+            return (Var i)) 
+            +++ parens expr
 
     toOp "+" = Plus
     toOp "-" = Minus
